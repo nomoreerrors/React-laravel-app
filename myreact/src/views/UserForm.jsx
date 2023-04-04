@@ -1,0 +1,109 @@
+
+
+
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import axiosClient from '../axios-client'
+
+export default function UserForm() {
+
+    const {id} = useParams()
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
+    const [errors, setErrors] = useState(null)
+    const [user, setUser] = useState({
+              id: null,
+              name: '',
+              email: '',
+              password: '',
+              password_confrimation: ''
+            })
+
+            
+
+
+    const onSubmit = (event) => {
+        event.preventDefault()
+        if(user.id) {
+        axiosClient.put(`/users/${user.id}`, user)
+        .then((data) => {
+          console.log(data.data)
+              navigate('/users')
+        })
+        .catch(err => setErrors(err.response.data.errors))
+             
+
+        
+      } else {
+             axiosClient.post(`/users`, user)
+              .then(() => {
+                 navigate('/users')
+                    })
+                    .catch(err => {
+                          // console.log(err)
+                              })
+                            }
+    }
+
+
+    const onChange = (event) => {
+          const {name, value} = event.target
+                setUser({...user, [name]: value})
+                
+          
+    }
+      //2:30 закончил
+      //2:30 закончил
+      //2:30 закончил
+
+
+     if(id) {
+          useEffect(() => {
+            setLoading(true)
+            axiosClient.get(`/users/${id}`)
+            .then(({data}) => {
+                    setLoading(false)
+                    setUser(data.data)
+                })
+            .catch(() => setLoading(false))
+          }, [])
+     }
+
+
+  return (
+     <>
+        {user.id && <h1>Update User: {user.name}</h1> }
+        {!user.id && <h1>New User</h1> }
+        {loading && <div>Loading...</div> }
+        {Object.keys(errors).map(key => (
+              <p key={key}>{errors[key][0]}</p>   
+              ))}
+
+          {!loading && 
+            <form onSubmit={onSubmit} action="">
+                <input value={user.name} 
+                      name='name' 
+                      onChange={onChange} 
+                      placeholder='Name' />
+                <input value={user.email} 
+                      name='email' 
+                      type='email'
+                      onChange={onChange} 
+                      placeholder='Email' />
+                <input 
+                      onChange={onChange} 
+                      type='password' 
+                      name='password'
+                      placeholder='Password' />
+                <input 
+                      onChange={onChange} 
+                      type='password' 
+                      name='password_confirm'
+                      placeholder='Confirm Password' />
+
+                <button>Save</button>
+            </form>
+          }
+     </>
+  )
+}
