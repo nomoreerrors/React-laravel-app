@@ -5,13 +5,23 @@ import { Link } from 'react-router-dom'
  export default function Users() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
+  const [pages, setPages] = useState([])
+  const [activePage, setActivePage] = useState(1)
+
+ 
+ const pagesToLinks = pages.map(i => {
+      return <a key={i} onClick={() => setActivePage(i)} href="#">{i}</a>
+    })
+ 
+ 
 
 
   useEffect(() => {
         getUsers()
-           }, [])
 
-           console.log(users)
+           }, [activePage])
+
+
 
     const onDelete = (i) => {
         if(window.confirm('Are you sure you want to delete this user?'))
@@ -22,12 +32,15 @@ import { Link } from 'react-router-dom'
                     }
 
 
+
+
     const getUsers = () => {
             setLoading(true)
-              axiosClient.get('/users')
+              axiosClient.get(`/users?page=${activePage}`)
                 .then(({data}) => {
                     setLoading(false)
-                      setUsers(data.data)
+                      setPages(Array.from({length: data.meta.last_page}, (_, i) => i + 1))
+                        setUsers(data.data)
                         })
                           }       
 
@@ -36,6 +49,8 @@ import { Link } from 'react-router-dom'
    return (
      <div>
         <h1>Users</h1>
+        
+        
         <Link to="/users/new">Add new</Link>
         <div>
           <table >
@@ -61,9 +76,9 @@ import { Link } from 'react-router-dom'
                 </td>
               </tr>
               ))}
-
             </tbody>
           </table>
+          {pagesToLinks}
         </div>
      </div>
    )

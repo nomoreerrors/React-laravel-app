@@ -1,40 +1,38 @@
 
-
-
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import axiosClient from '../axios-client'
 
+
+
 export default function UserForm() {
 
+    const navigate = useNavigate()
     const {id} = useParams()
     const [loading, setLoading] = useState(false)
-    const navigate = useNavigate()
     const [errors, setErrors] = useState(null)
     const [user, setUser] = useState({
               id: null,
               name: '',
               email: '',
               password: '',
-              password_confrimation: ''
+              password_confirmation: ''
             })
 
-            
+
 
 
     const onSubmit = (event) => {
         event.preventDefault()
         if(user.id) {
-        axiosClient.put(`/users/${user.id}`, user)
-        .then((data) => {
-          console.log(data.data)
-              navigate('/users')
-        })
-        .catch(err => setErrors(err.response.data.errors))
+            axiosClient.put(`/users/${user.id}`, user)
+            .then(() => navigate('/users'))
+            .catch(err => setErrors(err.response.data.errors))
              
 
         
       } else {
+
              axiosClient.post(`/users`, user)
               .then(() => {
                  navigate('/users')
@@ -75,9 +73,9 @@ export default function UserForm() {
         {user.id && <h1>Update User: {user.name}</h1> }
         {!user.id && <h1>New User</h1> }
         {loading && <div>Loading...</div> }
-        {Object.keys(errors).map(key => (
-              <p key={key}>{errors[key][0]}</p>   
-              ))}
+        {errors && Object.keys(errors).map(key => (
+                    <p style={{color: 'red'}} key={key}>{errors[key][0]}</p>   
+                    ))}
 
           {!loading && 
             <form onSubmit={onSubmit} action="">
@@ -98,7 +96,7 @@ export default function UserForm() {
                 <input 
                       onChange={onChange} 
                       type='password' 
-                      name='password_confirm'
+                      name='password_confirmation'
                       placeholder='Confirm Password' />
 
                 <button>Save</button>
